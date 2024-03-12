@@ -1,0 +1,29 @@
+{
+    "name": "sidalex/swoole-app",
+    "description": "a package for organizing http services on a swoole server",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Sidalex\\SwooleApp\\": "src/",
+            "Sidalex\\NewApp\\": "custom/"
+        }
+    },
+    "authors": [
+        {
+            "name": "SidAlex",
+            "email": "palach.orl@mail.ru"
+        }
+    ],
+    "require": {
+        "yurunsoft/guzzle-swoole": "^2.2",
+        "haydenpierce/class-finder": "^0.5.3",
+        "oittaa/uuid": "^1.9"
+    },
+    "config": {
+        "allow-plugins": {
+            "yurunsoft/composer-include-files": false,
+            "yurunsoft/guzzle-swoole": true
+        }
+    }
+}
