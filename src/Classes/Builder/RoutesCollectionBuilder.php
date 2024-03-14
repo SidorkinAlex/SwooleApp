@@ -60,5 +60,32 @@ class RoutesCollectionBuilder
 
     }
 
+    public function searchInRoute(\Swoole\Http\Request $request, array $routesCollection)
+    {
+        $uri = explode("/", $request->server['request_uri']);
+        return $this->findMatchingElement($routesCollection, $uri, $request->getMethod());
+
+    }
+
+    public function findMatchingElement($array1, $array2, $method,)
+    {
+        foreach ($array1 as $element) {
+            $routePatternList = $element['route_pattern_list'];
+            if (strtolower($method) != strtolower($element["method"])) {
+                continue;
+            }
+            $match = true;
+            for ($i = 0; $i < count($routePatternList); $i++) {
+                if ($routePatternList[$i] !== '*' && $routePatternList[$i] !== $array2[$i]) {
+                    $match = false;
+                    break;
+                }
+            }
+            if ($match) {
+                return $element;
+            }
+        }
+        return null;
+    }
 
 }
