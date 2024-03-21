@@ -4,6 +4,7 @@ namespace Sidalex\SwooleApp;
 
 use Sidalex\CandidateVacancyEstimationGpt\Classes\Validators\ConfigValidatorInterface;
 
+use Sidalex\SwooleApp\Classes\Builder\NotFoundControllerBuilder;
 use Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
 use Swoole\Server;
@@ -38,7 +39,7 @@ class Application
         $Route_builder = new RoutesCollectionBuilder();
         $itemRouteCollection = $Route_builder->searchInRoute($request, $this->routesCollection);
         if (empty($itemRouteCollection)) {
-            $controller = new NotFoundController($request, $response);
+            $controller = (new NotFoundControllerBuilder($request, $response,$this->config))->build();
         } else {
             $controller = $Route_builder->getController($itemRouteCollection, $request, $response);
         }
