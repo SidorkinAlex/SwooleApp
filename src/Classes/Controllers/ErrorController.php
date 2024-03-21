@@ -1,0 +1,31 @@
+<?php
+
+namespace Sidalex\SwooleApp\Classes\Controllers;
+
+class ErrorController implements ControllerInterface
+{
+
+    protected array $errors_message;
+    protected \Swoole\Http\Response $response;
+    protected \Swoole\Http\Request $request;
+    protected \Sidalex\SwooleApp\Application $application;
+
+    public function __construct(\Swoole\Http\Request $request, \Swoole\Http\Response $response, array $uri_params=[])
+    {
+        $this->request = $request;
+        $this->response = $response;
+        $this->errors_message =$uri_params;
+    }
+
+    public function execute(): \Swoole\Http\Response
+    {
+        //todo ErrorResponseBuilder
+        $errorBuilder = new ErrorResponseBuilder($this->response);
+        return $errorBuilder->errorResponse($this->errors_message['message']);
+    }
+
+    public function setApplication(\Sidalex\SwooleApp\Application $application, \Swoole\Http\Server $server)
+    {
+        $this->application = $application;
+    }
+}
