@@ -4,6 +4,7 @@ namespace Sidalex\SwooleApp\Classes\Builder;
 
 use HaydenPierce\ClassFinder\ClassFinder;
 use Sidalex\SwooleApp\Classes\Controllers\ControllerInterface;
+use Sidalex\SwooleApp\Classes\Controllers\ErrorController;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
 
 class RoutesCollectionBuilder
@@ -23,14 +24,12 @@ class RoutesCollectionBuilder
     public function buildRoutesCollection(ConfigWrapper $config): array
     {
         $classList = [];
-        var_export($config->getConfigFromKey('controllers'));
         foreach ($config->getConfigFromKey('controllers') as $controller) {
             ClassFinder::disablePSR4Vendors(); // Optional; see performance notes below
             $classes = ClassFinder::getClassesInNamespace(
                 $controller,
                 ClassFinder::RECURSIVE_MODE
             );
-            var_export($classes);
             $classList = array_merge($classList, $classes);
         }
         $repository = [];
@@ -55,7 +54,6 @@ class RoutesCollectionBuilder
             }
             $repository[] = $repositoryItem;
         }
-        var_export($repository);
         return $repository;
 
     }
@@ -88,4 +86,19 @@ class RoutesCollectionBuilder
         return null;
     }
 
+    public function getController(mixed $itemRouteCollection, \Swoole\Http\Request $request, \Swoole\Http\Response $response): ControllerInterface
+    {
+        $className = $itemRouteCollection['ControllerClass'];
+        $uri = explode("/", $request->server['request_uri']);
+        $UriParamsInjections = [];
+        foreach ($itemRouteCollection['parameters_fromURI'] as $keyInUri => $keyInParamsName) {
+            $UriParamsInjections[$keyInParamsName] = $uri[$keyInUri];
+        }
+        $interfaceCollection = class_implements($className);
+        if (in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface',$interfaceCollection)) {
+            return new $className($request, $response, $UriParamsInjections);
+        } else {
+            return new ErrorController($request, $response);
+        }
+    }
 }
