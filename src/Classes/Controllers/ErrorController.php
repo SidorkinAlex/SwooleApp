@@ -2,6 +2,8 @@
 
 namespace Sidalex\SwooleApp\Classes\Controllers;
 
+use Sidalex\SwooleApp\Classes\Builder\ErrorResponseBuilder;
+
 class ErrorController implements ControllerInterface
 {
 
