@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Sidalex\\SwooleApp\\": "src/",
+            "Sidalex\\SwooleApp\\": "src/"
         }
     },
     "authors": [
