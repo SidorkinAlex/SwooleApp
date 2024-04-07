@@ -53,5 +53,10 @@ class Application
         return $this->config;
     }
 
+    public function taskExecute($taskId, $reactorId, $data)
+    {
+        //todo: create typical logic from task
+    }
+
 
 }
