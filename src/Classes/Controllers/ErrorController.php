@@ -21,7 +21,6 @@ class ErrorController implements ControllerInterface
 
     public function execute(): \Swoole\Http\Response
     {
-        //todo ErrorResponseBuilder
         $errorBuilder = new ErrorResponseBuilder($this->response);
         return $errorBuilder->errorResponse($this->errors_message['message']);
     }
