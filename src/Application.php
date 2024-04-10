@@ -62,8 +62,7 @@ class Application
             return new TaskResulted('error data is not a TaskDataInterface', false);
         }
         $TaskExecutorClassName = $data->getTaskClassName();
-        if(Utilities::classImplementInterface($TaskExecutorClassName,'Sidalex\SwooleApp\Classes\Tasks\Executors\TaskExecutorInterface'))
-        {
+        if (Utilities::classImplementInterface($TaskExecutorClassName, 'Sidalex\SwooleApp\Classes\Tasks\Executors\TaskExecutorInterface')) {
             $TaskExecutorClass = new $TaskExecutorClassName($server, $taskId, $reactorId, $data);
             $result = $TaskExecutorClass->execute();
         } else {
