@@ -26,7 +26,7 @@ class NotFoundControllerBuilder
 
     public function build():ControllerInterface
     {
-        if(empty($this->config->getConfigFromKey('notFoundController'))){
+        if(!empty($this->config->getConfigFromKey('notFoundController'))){
             $className = $this->config->getConfigFromKey('notFoundController');
             $interfaceCollection = class_implements($className);
             if(in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface',$interfaceCollection)){
