@@ -24,6 +24,14 @@ class NotFoundController implements ControllerInterface
 
     public function execute(): \Swoole\Http\Response
     {
+        $this->responce->setStatusCode(404);
+        $this->responce->setHeader('Content-Type', 'application/json');
+        $this->responce->end(json_encode(
+            [
+                'codeStatus' => '404',
+                'text' => 'Page not found'
+            ]
+        ));
         return $this->responce;
     }
 
