@@ -74,4 +74,11 @@ class Application
         return $result;
     }
 
+    public function initCyclicJobs(): void
+    {
+        //todo: create CyclicJobsInterface
+        //todo: create CyclicJobsBuilder From config
+        //todo: run CyclicJob Objects
+    }
+
 }
