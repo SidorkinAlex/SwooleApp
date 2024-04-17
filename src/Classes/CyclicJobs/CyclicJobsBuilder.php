@@ -5,6 +5,7 @@ namespace Sidalex\SwooleApp\Classes\CyclicJobs;
 use Sidalex\SwooleApp\Application;
 use Sidalex\SwooleApp\Classes\Utils\Utilities;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
+use Swoole\Http\Server;
 
 class CyclicJobsBuilder
 {
@@ -40,11 +41,11 @@ class CyclicJobsBuilder
      * @param Application $application
      * @return array<CyclicJobsInterface>
      */
-    public function buildCyclicJobs(Application $application): array
+    public function buildCyclicJobs(Application $application,  Server $server): array
     {
         $cyclicJobs = [];
         foreach ($this->listClassName as $className) {
-            $cyclicJobs[] = new $className($application);
+            $cyclicJobs[] = new $className($application, $server);
         }
         return $cyclicJobs;
     }
