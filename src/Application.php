@@ -6,11 +6,13 @@ use Sidalex\CandidateVacancyEstimationGpt\Classes\Validators\ConfigValidatorInte
 
 use Sidalex\SwooleApp\Classes\Builder\NotFoundControllerBuilder;
 use Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder;
+use Sidalex\SwooleApp\Classes\CyclicJobs\CyclicJobsBuilder;
 use Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface;
 use Sidalex\SwooleApp\Classes\Tasks\TaskResulted;
 use Sidalex\SwooleApp\Classes\Utils\Utilities;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
-use Swoole\Server;
+use Swoole\Coroutine;
+use Swoole\Http\Server;
 
 
 class Application
@@ -74,11 +76,20 @@ class Application
         return $result;
     }
 
-    public function initCyclicJobs(): void
+    public function initCyclicJobs(Server $server): void
     {
-        //todo: create CyclicJobsInterface
-        //todo: create CyclicJobsBuilder From config
-        //todo: run CyclicJob Objects
+        $app = $this;
+        $builder = new CyclicJobsBuilder($this->config);
+        $listCyclicJobs = $builder->buildCyclicJobs($app, $server);
+        foreach ($listCyclicJobs as $job)
+            go(function () use ($app, $job) {
+                while (true) {
+                    Coroutine::sleep($job->getTimeSleepSecond());
+                    $job->runJob();
+                }
+            });
+        unset($builder);
+        unset($listCyclicJobs);
     }
 
 }
