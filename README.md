@@ -70,8 +70,47 @@ CyclicJobs - мкассив слассов , которые наследуют �
 
 ## Task
 
-```php
+Задачи это процессы , которые будут выполнены вне асинхронного процесса исполнения.
 
+Только в данных процессах может содержаться блокирующие операции.
+
+Методы:
+```php
+OpenSwoole\Server->task(Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface $data, int $dstWorkerId = -1, callable $finishCallback = null)
+```
+$data - класс имплементирующий Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface по умолчанию фреймворк редлагает использовать класс BasicTaskData
+
+$dstWorkerId - Идентификационный номер рабочего процесса. Если этот параметр не был передан, сервер swoole выберет для вас случайный и незанятый рабочий процесс.
+
+$finishCallback -  солбэк который будет выполнен перед завершением Task
+Ниже пример колбэка
+```php
+ function (OpenSwoole\Server $server, $task_id, $data)
+    {
+        echo "Task Callback: ";
+        var_dump($task_id, $data);
+    });
+
+```
+## BasicTaskData
+
+```php
+#Sidalex\SwooleApp\Classes\Tasks\Data\BasicTaskData
+$taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['test' => 'test1']);
+```
+В котором в конструкторе передается 2 параметра
+
+1 параметр ('Sidalex\TestSwoole\Tasks\TestTaskExecutor') - это название класса, который будет создан в в задаче для исполнения долже имплементировать интерфейс TaskExecutorInterface
+
+
+
+```php
+$taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['test' => 'test1']);
+        /**
+         * @var $taskResult TaskResulted
+         */
+        $taskResult =  $this->server->taskwait($taskData);
+        var_export($taskResult->getResult());
 ```
 
 ## Cyclic Job
