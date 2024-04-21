@@ -17,8 +17,8 @@ use Swoole\Http\Server;
 
 class Application
 {
-    private ConfigWrapper $config;
-    private array $routesCollection;
+    protected ConfigWrapper $config;
+    protected array $routesCollection;
 
     public function __construct(\stdClass $configPath, array $ConfigValidationList = [])
     {
@@ -38,6 +38,13 @@ class Application
         }
     }
 
+    /**
+     * @return array
+     */
+    public function getRoutesCollection(): array
+    {
+        return $this->routesCollection;
+    }
 
     public function execute(\Swoole\Http\Request $request, \Swoole\Http\Response $response, Server $server)
     {
