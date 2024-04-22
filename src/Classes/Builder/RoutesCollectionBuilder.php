@@ -9,6 +9,16 @@ use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
 
 class RoutesCollectionBuilder
 {
+    protected array $classList;
+
+    /**
+     * @throws \Exception
+     */
+    public function __construct(ConfigWrapper $config)
+    {
+        $this->classList = $this->getControllerClasses($config);
+    }
+
     /**
      * @return array<array> example [
      *      [
@@ -21,17 +31,30 @@ class RoutesCollectionBuilder
      * @throws \Exception
      * @throws \ReflectionException
      */
-    public function buildRoutesCollection(ConfigWrapper $config): array
+    public function buildRoutesCollection(): array
+    {
+        $repository = $this->getRepositoryItems($this->classList);
+
+        return $repository;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function getControllerClasses(ConfigWrapper $config): array
     {
         $classList = [];
         foreach ($config->getConfigFromKey('controllers') as $controller) {
-            ClassFinder::disablePSR4Vendors(); // Optional; see performance notes below
-            $classes = ClassFinder::getClassesInNamespace(
-                $controller,
-                ClassFinder::RECURSIVE_MODE
-            );
+            ClassFinder::disablePSR4Vendors();
+            $classes = ClassFinder::getClassesInNamespace($controller, ClassFinder::RECURSIVE_MODE);
             $classList = array_merge($classList, $classes);
         }
+
+        return $classList;
+    }
+
+    private function getRepositoryItems(array $classList): array
+    {
         $repository = [];
         foreach ($classList as $class) {
             $reflection = new \ReflectionClass($class);
@@ -54,8 +77,8 @@ class RoutesCollectionBuilder
             }
             $repository[] = $repositoryItem;
         }
-        return $repository;
 
+        return $repository;
     }
 
     public function searchInRoute(\Swoole\Http\Request $request, array $routesCollection)

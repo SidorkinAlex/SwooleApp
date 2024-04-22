@@ -32,8 +32,8 @@ class Application
                 }
             }
             $this->config = new ConfigWrapper($configPath);
-            $Route_builder = new RoutesCollectionBuilder();
-            $this->routesCollection = $Route_builder->buildRoutesCollection($this->config);
+            $Route_builder = new RoutesCollectionBuilder($this->config);
+            $this->routesCollection = $Route_builder->buildRoutesCollection();
         } catch (\Exception $e) {
             echo $e->getMessage();
             exit(1);
