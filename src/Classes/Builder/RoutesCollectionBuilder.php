@@ -61,21 +61,24 @@ class RoutesCollectionBuilder
             $attributes = $reflection->getAttributes();
             $repositoryItem = [];
             $parameters_fromURIItem = [];
-            if ($attributes[0]->getName() == 'Sidalex\\SwooleApp\\Classes\\Controllers\\Route') {
-                $url_arr = explode('/', $attributes[0]->getArguments()['uri']);
-                foreach ($url_arr as $number => $value) {
-                    $itemUri = $value;
-                    if ((str_starts_with($itemUri, '{')) && (str_ends_with($itemUri, '}'))) {
-                        $itemUri = "*";
-                        $parameters_fromURIItem[$number] = str_replace(['{', '}'], '', $value);
+            if (isset($attributes[0])) {
+                if ($attributes[0]->getName() == 'Sidalex\\SwooleApp\\Classes\\Controllers\\Route') {
+                    $url_arr = explode('/', $attributes[0]->getArguments()['uri']);
+                    file_put_contents('atr.log',var_export($attributes[0]->getArguments(),true));
+                    foreach ($url_arr as $number => $value) {
+                        $itemUri = $value;
+                        if ((str_starts_with($itemUri, '{')) && (str_ends_with($itemUri, '}'))) {
+                            $itemUri = "*";
+                            $parameters_fromURIItem[$number] = str_replace(['{', '}'], '', $value);
+                        }
+                        $repositoryItem['route_pattern_list'][$number] = $itemUri;
                     }
-                    $repositoryItem['route_pattern_list'][$number] = $itemUri;
+                    $repositoryItem['parameters_fromURI'] = $parameters_fromURIItem;
+                    $repositoryItem['method'] = $attributes[0]->getArguments()['method'];
+                    $repositoryItem['ControllerClass'] = $class;
                 }
-                $repositoryItem['parameters_fromURI'] = $parameters_fromURIItem;
-                $repositoryItem['method'] = $attributes[0]->getArguments()['method'];
-                $repositoryItem['ControllerClass'] = $class;
+                $repository[] = $repositoryItem;
             }
-            $repository[] = $repositoryItem;
         }
 
         return $repository;
