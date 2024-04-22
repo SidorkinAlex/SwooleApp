@@ -27,6 +27,8 @@ class Application
                 $validationClass = new $configValidationClassName;
                 if ($validationClass instanceof ConfigValidatorInterface) {
                     $validationClass->validate($configPath);
+                } else{
+                    //todo: add logic to logs inition not ConfigValidatorInterface validation class
                 }
             }
             $this->config = new ConfigWrapper($configPath);
