@@ -57,27 +57,12 @@ class RoutesCollectionBuilder
     {
         $repository = [];
         foreach ($classList as $class) {
-            $reflection = new \ReflectionClass($class);
-            $attributes = $reflection->getAttributes();
-            $repositoryItem = [];
-            $parameters_fromURIItem = [];
+            $attributes = $this->getAtributeReflection($class);
             if (isset($attributes[0])) {
                 if ($attributes[0]->getName() == 'Sidalex\\SwooleApp\\Classes\\Controllers\\Route') {
-                    $url_arr = explode('/', $attributes[0]->getArguments()['uri']);
-                    file_put_contents('atr.log',var_export($attributes[0]->getArguments(),true));
-                    foreach ($url_arr as $number => $value) {
-                        $itemUri = $value;
-                        if ((str_starts_with($itemUri, '{')) && (str_ends_with($itemUri, '}'))) {
-                            $itemUri = "*";
-                            $parameters_fromURIItem[$number] = str_replace(['{', '}'], '', $value);
-                        }
-                        $repositoryItem['route_pattern_list'][$number] = $itemUri;
-                    }
-                    $repositoryItem['parameters_fromURI'] = $parameters_fromURIItem;
-                    $repositoryItem['method'] = $attributes[0]->getArguments()['method'];
-                    $repositoryItem['ControllerClass'] = $class;
+                    $repositoryItem = $this->generateItemRout($attributes[0],$class);
+                    $repository[] = $repositoryItem;
                 }
-                $repository[] = $repositoryItem;
             }
         }
 
@@ -121,10 +106,55 @@ class RoutesCollectionBuilder
             $UriParamsInjections[$keyInParamsName] = $uri[$keyInUri];
         }
         $interfaceCollection = class_implements($className);
-        if (in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface',$interfaceCollection)) {
+        if (in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface', $interfaceCollection)) {
             return new $className($request, $response, $UriParamsInjections);
         } else {
             return new ErrorController($request, $response);
         }
+    }
+
+    private function getAtributeReflection(string $class)
+    {
+        $reflection = new \ReflectionClass($class);
+        return $reflection->getAttributes();
+    }
+
+    /**
+     * @param \ReflectionAttribute $attributes
+     * @param string $class
+     * @return array example  [
+                                    'route_pattern_list' =>
+                                            [
+                                                0 => '',
+                                                1 => 'api',
+                                                2 => 'v2',
+                                                3 => '*',
+                                                4 => 'v5',
+                                            ],
+                                    'parameters_fromURI' =>
+                                        [
+                                            3 => 'test_name',
+                                        ],
+                                    'method' => 'POST',
+                                    'ControllerClass' => 'TestController2',
+                                    ]
+     */
+    protected function generateItemRout(\ReflectionAttribute $attributes,string $class):array
+    {
+        $repositoryItem = [];
+        $parameters_fromURIItem = [];
+        $url_arr = explode('/', $attributes->getArguments()['uri']);
+        foreach ($url_arr as $number => $value) {
+            $itemUri = $value;
+            if ((str_starts_with($itemUri, '{')) && (str_ends_with($itemUri, '}'))) {
+                $itemUri = "*";
+                $parameters_fromURIItem[$number] = str_replace(['{', '}'], '', $value);
+            }
+            $repositoryItem['route_pattern_list'][$number] = $itemUri;
+        }
+        $repositoryItem['parameters_fromURI'] = $parameters_fromURIItem;
+        $repositoryItem['method'] = $attributes->getArguments()['method'];
+        $repositoryItem['ControllerClass'] = $class;
+        return $repositoryItem;
     }
 }
