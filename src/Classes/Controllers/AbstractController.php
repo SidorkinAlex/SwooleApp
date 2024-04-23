@@ -3,7 +3,7 @@
 namespace Sidalex\SwooleApp\Classes\Controllers;
 
 use Sidalex\SwooleApp\Application;
-use Swoole\Server;
+use Swoole\Http\Server;
 
 abstract class AbstractController implements ControllerInterface
 {
