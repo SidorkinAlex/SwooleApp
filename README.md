@@ -62,6 +62,30 @@ $http->start();
 Все блокирующие операции необходимо оборачивать в TaskExecutorInterface и выполнять отдельными [Task](#task).
 ## Config
 
+для запуска приложения необходимо создать stdClass с набором свойств(далее описаны более поробно)
+
+целевым использованиие считается инициация конфигурационных данных из файла json смоттри пример server.php
+```php
+$config = json_decode(file_get_contents('./config.json'));
+```
+
+### Список параметров конфига
+
+```php
+$config = new stdClass();
+$config->notFoundController = 'appNameSpaceMyApp\MyNotFoundController';
+$config->controllers = [
+    'appNameSpaseMyApp\MyFirstControllerNamespace',
+    'appNameSpaseMyApp\MySecondControllerNamespace',
+    'appNameSpaseMyApp\MyThreeControllerNamespace',
+];
+$config->CyclicJobs =[
+    'appNameSpaseMyApp\MyFirstCyclicJobsClass',
+    'appNameSpaseMyApp\MySecondCyclicJobsClass',
+    'appNameSpaseMyApp\MyThreeCyclicJobsClass',
+];
+```
+
 notFoundController - строка класс с неймспейсом для использования в случае отсутствия роута
 
 controllers - namespace контроллера для который передается приложению.
