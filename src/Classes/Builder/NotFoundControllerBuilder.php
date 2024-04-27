@@ -4,6 +4,7 @@ namespace Sidalex\SwooleApp\Classes\Builder;
 
 use Sidalex\SwooleApp\Classes\Controllers\ControllerInterface;
 use Sidalex\SwooleApp\Classes\Controllers\NotFoundController;
+use Sidalex\SwooleApp\Classes\Utils\Utilities;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
 
 class NotFoundControllerBuilder
@@ -24,17 +25,15 @@ class NotFoundControllerBuilder
         $this->response = $response;
     }
 
-    public function build():ControllerInterface
+    public function build(): ControllerInterface
     {
-        if(!empty($this->config->getConfigFromKey('notFoundController'))){
+        if (!empty($this->config->getConfigFromKey('notFoundController'))) {
             $className = $this->config->getConfigFromKey('notFoundController');
-            // todo change implementation from Utiliti Class
-            $interfaceCollection = class_implements($className);
-            if(in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface',$interfaceCollection)){
-                return new $className($this->request,$this->response);
+            if (Utilities::classImplementInterface($className, 'Sidalex\SwooleApp\Classes\Controllers\ControllerInterface')) {
+                return new $className($this->request, $this->response);
             }
         }
-        return new NotFoundController($this->request,$this->response);
+        return new NotFoundController($this->request, $this->response);
     }
 
 }
