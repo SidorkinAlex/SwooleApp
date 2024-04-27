@@ -108,10 +108,24 @@ class RoutesCollectionBuilderTest extends TestCase
     }
 
 
-//    public function testBuildRoutesCollection__buildRouteNotStartingWithSlash__GenerationRouteListFromApp__AssertException()
-//    {
-//
-//    }
+    /**
+     *
+     * @covers \Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder::buildRoutesCollection
+     */
+    public function testBuildRoutesCollection__buildRouteNotStartingWithSlash__GenerationRouteListFromApp__AssertException()
+    {
+        $routesCollectionBuilder = $this->getInjectedEmptyConfigRoutesBuilder(
+            [
+                'TestNotValidRoutController'
+            ]
+        );
+        try {
+            $build = $routesCollectionBuilder->buildRoutesCollection();
+        } catch (\Exception $exception){
+            $this->assertEquals(1, $exception->getCode(),"Error Validation URI");
+        }
+
+    }
 
     private function getInjectedEmptyConfigRoutesBuilder(array $classList = []): RoutesCollectionBuilder
     {
