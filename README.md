@@ -2,6 +2,10 @@
 
 [![Latest Stable Version](http://poser.pugx.org/sidalex/swoole-app/v)](https://packagist.org/packages/sidalex/swoole-app) [![Total Downloads](http://poser.pugx.org/sidalex/swoole-app/downloads)](https://packagist.org/packages/sidalex/swoole-app) [![Latest Unstable Version](http://poser.pugx.org/sidalex/swoole-app/v/unstable)](https://packagist.org/packages/sidalex/swoole-app) [![License](http://poser.pugx.org/sidalex/swoole-app/license)](https://packagist.org/packages/sidalex/swoole-app) [![PHP Version Require](http://poser.pugx.org/sidalex/swoole-app/require/php)](https://packagist.org/packages/sidalex/swoole-app)
 
+[en] | [ru](#sidalexswoole-app-фреймворк-для-работы-со-swoole)
+
+
+# sidalex/swoole-app фреймворк для работы со swoole
 ## Install
 
 To install, run the following command
@@ -110,24 +114,34 @@ $http->on(
 
 Только в данных процессах может содержаться блокирующие операции.
 
+для запуска Task необходимо сосздать объект класса BasicTaskData или создать собственный имплементирующий интерфейс TaskDataInterface
+более подробно [тут](#basictaskdata)
+
 Методы:
+task - запуск задачи без ожидание ее завершения
+
+taskwait - запуск ззадачи с ожитанием завершения и получения результата. ожидание результата происходит неблокирующим образом. задачи можно запускать из контоллера.
+
 ```php
 Swoole\Server->task(Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface $data, int $dstWorkerId = -1, callable $finishCallback = null)
 ```
-$data - класс имплементирующий Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface по умолчанию фреймворк редлагает использовать класс BasicTaskData
+$data - класс имплементирующий Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface по умолчанию фреймворк редлагает использовать класс BasicTaskData подробнее [тут](#basictaskdata)
 
 $dstWorkerId - Идентификационный номер рабочего процесса. Если этот параметр не был передан, сервер swoole выберет для вас случайный и незанятый рабочий процесс.
 
-$finishCallback -  солбэк который будет выполнен перед завершением Task
-Ниже пример колбэка
-```php
- function (OpenSwoole\Server $server, $task_id, $data)
-    {
-        echo "Task Callback: ";
-        var_dump($task_id, $data);
-    });
+$finishCallback -  солбэк который будет выполнен перед завершением Task не обязательный параметр
 
+```php
+$result = Swoole\Server->taskwait((Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface $data, float $timeout = 0.5, int $dstWorkerId = -1) :TaskResulted
 ```
+$data - класс имплементирующий Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface по умолчанию фреймворк редлагает использовать класс BasicTaskData подробнее [тут](#basictaskdata)
+
+$timeout - время ожидания завершения задачи в секундах, эта функция не будет возвращаться до тех пор, пока задача не будет завершена, или если истечет время ожидания, то по истечении этого времени будет возвращено значение false. Минимальное значение - 1 мс.
+
+$dstWorkerId - Идентификационный номер рабочего процесса. Если этот параметр не был передан, сервер swoole выберет для вас случайный и незанятый рабочий процесс.
+
+$result - результат выполнения Task должен являться TaskResulted подробнее [тут](#taskresulted)
+
 ## BasicTaskData
 
 ```php
@@ -147,6 +161,11 @@ $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['tes
          */
         $taskResult =  $this->server->taskwait($taskData);
         var_export($taskResult->getResult());
+```
+## TaskResulted
+
+```php
+пример
 ```
 
 ## Cyclic Job
