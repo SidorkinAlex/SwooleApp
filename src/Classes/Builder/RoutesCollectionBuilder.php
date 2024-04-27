@@ -5,6 +5,7 @@ namespace Sidalex\SwooleApp\Classes\Builder;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Sidalex\SwooleApp\Classes\Controllers\ControllerInterface;
 use Sidalex\SwooleApp\Classes\Controllers\ErrorController;
+use Sidalex\SwooleApp\Classes\Utils\Utilities;
 use Sidalex\SwooleApp\Classes\Validators\ValidatorUriArr;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
 
@@ -63,7 +64,7 @@ class RoutesCollectionBuilder
             $attributes = $this->getAtributeReflection($class);
             if (isset($attributes[0])) {
                 if ($attributes[0]->getName() == 'Sidalex\\SwooleApp\\Classes\\Controllers\\Route') {
-                    $repositoryItem = $this->generateItemRout($attributes[0],$class);
+                    $repositoryItem = $this->generateItemRout($attributes[0], $class);
                     $repository[] = $repositoryItem;
                 }
             }
@@ -92,7 +93,7 @@ class RoutesCollectionBuilder
      *                               ]
      * @throws \Exception
      */
-    protected function generateItemRout(\ReflectionAttribute $attributes,string $class):array
+    protected function generateItemRout(\ReflectionAttribute $attributes, string $class): array
     {
         $repositoryItem = [];
         $parameters_fromURIItem = [];
@@ -111,6 +112,7 @@ class RoutesCollectionBuilder
         $repositoryItem['ControllerClass'] = $class;
         return $repositoryItem;
     }
+
     public function searchInRoute(\Swoole\Http\Request $request, array $routesCollection)
     {
         $uri = explode("/", $request->server['request_uri']);
@@ -147,8 +149,7 @@ class RoutesCollectionBuilder
         foreach ($itemRouteCollection['parameters_fromURI'] as $keyInUri => $keyInParamsName) {
             $UriParamsInjections[$keyInParamsName] = $uri[$keyInUri];
         }
-        $interfaceCollection = class_implements($className);
-        if (in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface', $interfaceCollection)) {
+        if (Utilities::classImplementInterface($className, 'Sidalex\SwooleApp\Classes\Controllers\ControllerInterface')) {
             return new $className($request, $response, $UriParamsInjections);
         } else {
             return new ErrorController($request, $response);
