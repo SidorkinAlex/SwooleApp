@@ -5,10 +5,23 @@ namespace Sidalex\SwooleApp\Classes\Builder;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Sidalex\SwooleApp\Classes\Controllers\ControllerInterface;
 use Sidalex\SwooleApp\Classes\Controllers\ErrorController;
+use Sidalex\SwooleApp\Classes\Validators\ValidatorUriArr;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
 
 class RoutesCollectionBuilder
 {
+    protected array $classList;
+    protected ValidatorUriArr $validatorUriArr;
+
+    /**
+     * @throws \Exception
+     */
+    public function __construct(ConfigWrapper $config)
+    {
+        $this->classList = $this->getControllerClasses($config);
+        $this->validatorUriArr = new ValidatorUriArr();
+    }
+
     /**
      * @return array<array> example [
      *      [
@@ -21,43 +34,83 @@ class RoutesCollectionBuilder
      * @throws \Exception
      * @throws \ReflectionException
      */
-    public function buildRoutesCollection(ConfigWrapper $config): array
+    public function buildRoutesCollection(): array
+    {
+        $repository = $this->getRepositoryItems($this->classList);
+
+        return $repository;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function getControllerClasses(ConfigWrapper $config): array
     {
         $classList = [];
         foreach ($config->getConfigFromKey('controllers') as $controller) {
-            ClassFinder::disablePSR4Vendors(); // Optional; see performance notes below
-            $classes = ClassFinder::getClassesInNamespace(
-                $controller,
-                ClassFinder::RECURSIVE_MODE
-            );
+            ClassFinder::disablePSR4Vendors();
+            $classes = ClassFinder::getClassesInNamespace($controller, ClassFinder::RECURSIVE_MODE);
             $classList = array_merge($classList, $classes);
         }
-        $repository = [];
-        foreach ($classList as $class) {
-            $reflection = new \ReflectionClass($class);
-            $attributes = $reflection->getAttributes();
-            $repositoryItem = [];
-            $parameters_fromURIItem = [];
-            if ($attributes[0]->getName() == 'Sidalex\\SwooleApp\\Classes\\Controllers\\Route') {
-                $url_arr = explode('/', $attributes[0]->getArguments()['uri']);
-                foreach ($url_arr as $number => $value) {
-                    $itemUri = $value;
-                    if ((str_starts_with($itemUri, '{')) && (str_ends_with($itemUri, '}'))) {
-                        $itemUri = "*";
-                        $parameters_fromURIItem[$number] = str_replace(['{', '}'], '', $value);
-                    }
-                    $repositoryItem['route_pattern_list'][$number] = $itemUri;
-                }
-                $repositoryItem['parameters_fromURI'] = $parameters_fromURIItem;
-                $repositoryItem['method'] = $attributes[0]->getArguments()['method'];
-                $repositoryItem['ControllerClass'] = $class;
-            }
-            $repository[] = $repositoryItem;
-        }
-        return $repository;
 
+        return $classList;
     }
 
+    private function getRepositoryItems(array $classList): array
+    {
+        $repository = [];
+        foreach ($classList as $class) {
+            $attributes = $this->getAtributeReflection($class);
+            if (isset($attributes[0])) {
+                if ($attributes[0]->getName() == 'Sidalex\\SwooleApp\\Classes\\Controllers\\Route') {
+                    $repositoryItem = $this->generateItemRout($attributes[0],$class);
+                    $repository[] = $repositoryItem;
+                }
+            }
+        }
+        return $repository;
+    }
+
+    /**
+     * @param \ReflectionAttribute $attributes
+     * @param string $class
+     * @return array example  [
+     *                               'route_pattern_list' =>
+     *                                       [
+     *                                           0 => '',
+     *                                           1 => 'api',
+     *                                           2 => 'v2',
+     *                                           3 => '*',
+     *                                           4 => 'v5',
+     *                                       ],
+     *                               'parameters_fromURI' =>
+     *                                   [
+     *                                       3 => 'test_name',
+     *                                   ],
+     *                               'method' => 'POST',
+     *                               'ControllerClass' => 'TestController2',
+     *                               ]
+     * @throws \Exception
+     */
+    protected function generateItemRout(\ReflectionAttribute $attributes,string $class):array
+    {
+        $repositoryItem = [];
+        $parameters_fromURIItem = [];
+        $url_arr = explode('/', $attributes->getArguments()['uri']);
+        $url_arr = $this->validatorUriArr->validate($url_arr);
+        foreach ($url_arr as $number => $value) {
+            $itemUri = $value;
+            if ((str_starts_with($itemUri, '{')) && (str_ends_with($itemUri, '}'))) {
+                $itemUri = "*";
+                $parameters_fromURIItem[$number] = str_replace(['{', '}'], '', $value);
+            }
+            $repositoryItem['route_pattern_list'][$number] = $itemUri;
+        }
+        $repositoryItem['parameters_fromURI'] = $parameters_fromURIItem;
+        $repositoryItem['method'] = $attributes->getArguments()['method'];
+        $repositoryItem['ControllerClass'] = $class;
+        return $repositoryItem;
+    }
     public function searchInRoute(\Swoole\Http\Request $request, array $routesCollection)
     {
         $uri = explode("/", $request->server['request_uri']);
@@ -95,10 +148,16 @@ class RoutesCollectionBuilder
             $UriParamsInjections[$keyInParamsName] = $uri[$keyInUri];
         }
         $interfaceCollection = class_implements($className);
-        if (in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface',$interfaceCollection)) {
+        if (in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface', $interfaceCollection)) {
             return new $className($request, $response, $UriParamsInjections);
         } else {
             return new ErrorController($request, $response);
         }
+    }
+
+    private function getAtributeReflection(string $class)
+    {
+        $reflection = new \ReflectionClass($class);
+        return $reflection->getAttributes();
     }
 }
