@@ -28,6 +28,7 @@ class NotFoundControllerBuilder
     {
         if(!empty($this->config->getConfigFromKey('notFoundController'))){
             $className = $this->config->getConfigFromKey('notFoundController');
+            // todo change implementation from Utiliti Class
             $interfaceCollection = class_implements($className);
             if(in_array('Sidalex\SwooleApp\Classes\Controllers\ControllerInterface',$interfaceCollection)){
                 return new $className($this->request,$this->response);
