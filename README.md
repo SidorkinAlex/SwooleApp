@@ -86,21 +86,33 @@ $config->CyclicJobs =[
 ];
 ```
 
-notFoundController - строка класс с неймспейсом для использования в случае отсутствия роута
+notFoundController - строка класс с классом , который обрабатывает роуты не найденные по стандартному флоу, данный клас должен имплементировать Sidalex\SwooleApp\Classes\Controllers\ControllerInterface 
 
-controllers - namespace контроллера для который передается приложению.
+controllers - массив namespace в которых рекурсивно удет осуществляться поиск классов Контроллеров(имплементирующих интерфейс Sidalex\SwooleApp\Classes\Controllers\ControllerInterface) так же для реализации класса контроллера можно испрользовать наследование AbstractController более подробно [тут](#controller).
 
-CyclicJobs - мкассив слассов , которые наследуют интерфейс CyclicJobsInterface которы запускаются при стапрте приложения
+CyclicJobs - мкассив слассов , которые имплементируют интерфейс CyclicJobsInterface которы запускаются при стапрте приложения и выполняются циклично раз в определенный интервал времени подробнее [тут](#cyclic-job)
 
 ## Task
 
-Задачи это процессы , которые будут выполнены вне асинхронного процесса исполнения.
+Задачи это процессы , которые будут выполнены вне асинхронного процесса исполнения и могут быть вызваны в любой части приложения.
+
+для урощения работы с задачами и универсализации вывода в фреймворке добавлена сандартизация данного процесса для его использования при старте swoole server необходимо инициировать блок
+
+Если данный блок не Инициировать то фреймворк с классом BasicTaskData и интерфейсом TaskDataInterface работать не будет.
+```php
+$http->on(
+    'task',
+    function (Server $server, $taskId, $reactorId, $data) use ($app) {
+        return $app->taskExecute($server, $taskId, $reactorId, $data);
+    }
+);
+```
 
 Только в данных процессах может содержаться блокирующие операции.
 
 Методы:
 ```php
-OpenSwoole\Server->task(Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface $data, int $dstWorkerId = -1, callable $finishCallback = null)
+Swoole\Server->task(Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface $data, int $dstWorkerId = -1, callable $finishCallback = null)
 ```
 $data - класс имплементирующий Sidalex\SwooleApp\Classes\Tasks\Data\TaskDataInterface по умолчанию фреймворк редлагает использовать класс BasicTaskData
 
