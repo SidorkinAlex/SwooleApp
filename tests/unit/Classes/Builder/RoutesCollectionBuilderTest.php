@@ -153,6 +153,11 @@ class RoutesCollectionBuilderTest extends TestCase
 
     }
 
+    /**Create RoutesCollectionBuilder from not config injected class from $classList
+     * @param array $classList
+     * @return RoutesCollectionBuilder
+     * @throws \Exception
+     */
     private function getInjectedEmptyConfigRoutesBuilder(array $classList = []): RoutesCollectionBuilder
     {
         $configWrapper = $this->getConfigWrapperMock();
