@@ -127,6 +127,32 @@ class RoutesCollectionBuilderTest extends TestCase
 
     }
 
+    /**
+     *
+     * @covers \Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder::buildRoutesCollection
+     */
+    public function testBuildRoutesCollection__buildRoute_GenerationRouteListFromApp__checkRoute_parameters_fromURI__assertTestName()
+    {
+        $routesCollectionBuilder = $this->getInjectedEmptyConfigRoutesBuilder(
+            [
+                'TestController2',
+            ]
+        );
+        $build = $routesCollectionBuilder->buildRoutesCollection();
+        $this->assertEquals('test_name', $build[0]['parameters_fromURI'][3],"contract parameters_fromURI not set params");
+
+    }
+
+    /**
+     *
+     * @covers \Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder::searchInRoute
+     */
+    public function testSearchInRoute__searchInMock__()
+    {
+
+
+    }
+
     private function getInjectedEmptyConfigRoutesBuilder(array $classList = []): RoutesCollectionBuilder
     {
         $configWrapper = $this->getConfigWrapperMock();
