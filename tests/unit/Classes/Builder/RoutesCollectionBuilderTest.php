@@ -147,10 +147,31 @@ class RoutesCollectionBuilderTest extends TestCase
      *
      * @covers \Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder::searchInRoute
      */
-    public function testSearchInRoute__searchInMock__()
+    public function testSearchInRoute__searchInMockStaticRoute__SuccessSearchItemRoute()
     {
-
-
+        $swooleRequestStab = $this->createStub(\Swoole\Http\Request::class);
+        $swooleRequestStab
+            ->method('getMethod')
+            ->willReturn('GET');
+        $swooleRequestStab->server['request_uri'] = '/api/v3/collectionsList/';
+        $routesCollectionBuilder = $this->getInjectedEmptyConfigRoutesBuilder([]);
+        $routesCollection = include'./tests/TestData/mocks/routesCollection.php';
+        $result=$routesCollectionBuilder->searchInRoute($swooleRequestStab,$routesCollection);
+        $expectedResult = array (
+            'route_pattern_list' =>
+                array (
+                    0 => '',
+                    1 => 'api',
+                    2 => 'v3',
+                    3 => 'collectionsList',
+                ),
+            'parameters_fromURI' =>
+                array (
+                ),
+            'method' => 'GET',
+            'ControllerClass' => 'TestController4',
+        );
+        $this->assertEquals($result,$expectedResult,'fixed roure /api/v3/collectionsList found not correct ');
     }
 
     /**Create RoutesCollectionBuilder from not config injected class from $classList
