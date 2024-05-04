@@ -150,9 +150,11 @@ $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['tes
 ```
 В котором в конструкторе передается 2 параметра
 
-1 параметр ('Sidalex\TestSwoole\Tasks\TestTaskExecutor') - это название класса, который будет создан в в задаче для исполнения долже имплементировать интерфейс TaskExecutorInterface
+1 параметр ('Sidalex\TestSwoole\Tasks\TestTaskExecutor') - это название класса, который будет создан в задаче для исполнения. Он должен имплементировать интерфейс TaskExecutorInterface
 
+2 параметр ( ['test' => 'test1'] ) - это массив с данными контекста, который необходим для исполнения логики содержащейся в классе задачи ('Sidalex\TestSwoole\Tasks\TestTaskExecutor' для примера)
 
+Пример применения например в контроллере или в Cyclic Job:
 
 ```php
 $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['test' => 'test1']);
