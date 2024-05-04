@@ -120,7 +120,7 @@ class RoutesCollectionBuilder
 
     }
 
-    public function findMatchingElement($array1, $array2, $method,)
+    protected function findMatchingElement($array1, $array2, $method,)
     {
         foreach ($array1 as $element) {
             $routePatternList = $element['route_pattern_list'];
@@ -129,7 +129,8 @@ class RoutesCollectionBuilder
             }
             $match = true;
             for ($i = 0; $i < count($routePatternList); $i++) {
-                if ($routePatternList[$i] !== '*' && $routePatternList[$i] !== $array2[$i]) {
+                if ($routePatternList[$i] !== '*'
+                    && $routePatternList[$i] !== $array2[$i]) {
                     $match = false;
                     break;
                 }
