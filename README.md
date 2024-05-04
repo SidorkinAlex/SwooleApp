@@ -166,8 +166,26 @@ $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['tes
 ```
 ## TaskResulted
 
+Описание: Класс TaskResulted представляет собой результат выполнения задачи. Он содержит информацию о успешном выполнении задачи и её результате.Copy
+
+Свойства:
+
+$success - приватное свойство, содержащее информацию о успешном выполнении задачи.
+$result - приватное свойство, содержащее результат выполнения задачи.
+
+
+__construct(mixed $inData, bool $success = true) - конструктор класса, принимающий входные данные и информацию о успешном выполнении задачи.
+getResult(): mixed - метод, возвращающий результат выполнения задачи. Может выбрасывать исключение типа TaskException.Copy
+isSuccess(): bool - метод, возвращающий информацию о успешном выполнении задачи.
+
+Пример:
 ```php
-пример
+$taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['test' => 'test1']);
+        /**
+         * @var $taskResult TaskResulted
+         */
+        $taskResult =  $this->server->taskwait($taskData);
+        var_export($taskResult->getResult());
 ```
 
 ## Cyclic Job
