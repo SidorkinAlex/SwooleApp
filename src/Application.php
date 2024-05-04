@@ -50,7 +50,7 @@ class Application
 
     public function execute(\Swoole\Http\Request $request, \Swoole\Http\Response $response, Server $server)
     {
-        $Route_builder = new RoutesCollectionBuilder();
+        $Route_builder = new RoutesCollectionBuilder($this->config);
         $itemRouteCollection = $Route_builder->searchInRoute($request, $this->routesCollection);
         if (empty($itemRouteCollection)) {
             $controller = (new NotFoundControllerBuilder($request, $response, $this->config))->build();
