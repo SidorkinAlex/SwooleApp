@@ -190,6 +190,29 @@ $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['tes
 
 ## Cyclic Job
 
+Это код, который требует периодического исполнения. С помощью этого механизма можно с определенной периодичностью запускать скрипты. Замена cron.
+
+Для инициализации Cyclic Job необходимо объявить в конфигурационном файле параметр CyclicJobs
+
+Пример инициализации config через stdClass :
+
+```php
+$config = new stdClass();
+$config->CyclicJobs =[
+"Sidalex\TestSwoole\CyclicJobs\TestCyclicJobs",
+];
+```
+Пример инициализации config через json файл:
+
+```json
+{
+  "CyclicJobs": [
+    "Sidalex\\TestSwoole\\CyclicJobs\\TestCyclicJobs"
+  ]
+}
+```
+
+Пример класса для Cyclic Job
 ```php
 class MyCyclicJob implements CyclicJobsInterface
 {
@@ -221,6 +244,11 @@ class MyCyclicJob implements CyclicJobsInterface
 }
 ```
 
+Любой класс указанный в конфиге должен имплементировать интерфейс CyclicJobsInterface
+
+getTimeSleepSecond - возвращает время в секундах периодичность с которой будет запускаться метод runJob
+
+runJob - метод, который содержит в себе полезную нагрузку в разрезе бизнес логики. Это код содержащий основную бизнес логику которая должна выполняться циклически.
 
 ## Controller
 
