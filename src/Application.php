@@ -17,8 +17,8 @@ use Swoole\Http\Server;
 
 class Application
 {
-    private ConfigWrapper $config;
-    private array $routesCollection;
+    protected ConfigWrapper $config;
+    protected array $routesCollection;
 
     public function __construct(\stdClass $configPath, array $ConfigValidationList = [])
     {
@@ -27,21 +27,30 @@ class Application
                 $validationClass = new $configValidationClassName;
                 if ($validationClass instanceof ConfigValidatorInterface) {
                     $validationClass->validate($configPath);
+                } else{
+                    //todo: add logic to logs inition not ConfigValidatorInterface validation class
                 }
             }
             $this->config = new ConfigWrapper($configPath);
-            $Route_builder = new RoutesCollectionBuilder();
-            $this->routesCollection = $Route_builder->buildRoutesCollection($this->config);
+            $Route_builder = new RoutesCollectionBuilder($this->config);
+            $this->routesCollection = $Route_builder->buildRoutesCollection();
         } catch (\Exception $e) {
             echo $e->getMessage();
             exit(1);
         }
     }
 
+    /**
+     * @return array
+     */
+    public function getRoutesCollection(): array
+    {
+        return $this->routesCollection;
+    }
 
     public function execute(\Swoole\Http\Request $request, \Swoole\Http\Response $response, Server $server)
     {
-        $Route_builder = new RoutesCollectionBuilder();
+        $Route_builder = new RoutesCollectionBuilder($this->config);
         $itemRouteCollection = $Route_builder->searchInRoute($request, $this->routesCollection);
         if (empty($itemRouteCollection)) {
             $controller = (new NotFoundControllerBuilder($request, $response, $this->config))->build();
