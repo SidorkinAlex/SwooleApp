@@ -274,11 +274,67 @@ class TestController extends AbstractController
 {
 ```
 
-uri - это параметр, который определяет лоя какого роута будет использован данный контроллер
-
 Критически важно что бы атрибут был указан первым у данного класса.
 
+В случае если не найден ни один подходящий контроллер будет вызван NotFoundController
 
+### Параметр uri атрибута
+
+uri - это параметр, который определяет лоя какого роута будет использован данный контроллер. 
+
+Если в роуте указать * например /test/version/*/items то данный контроллер будет отрабатывать для uri, соответствующих   /test/version/(любая строка)/items
+
+Если в роуте указать /test/version/{version_number}/items то поведение будет аналогично поведению со звездочкой, но в конструктор контроллера будет добавлен $uri_params['version_number']. 
+Если использовать наследование от AbstractController то к данному параметру  через:
+
+```php
+$this->uri_params['version_number'];
+```
+
+### Параметр method атрибута
+
+method - показывает для вызова каким методом будет актуален данный контроллер.
+
+### Обработка запросов
+
+Метод класса Контроллера execute содержит основную бизнес логику, которую должно выполнить приложение по данному запросу.
+данный  метод должен вернуть респонс(\Swoole\Http\Response), который содержится в
+```php
+$this->response
+```
+
+#### Ответ Response
+В контроллере:
+```php
+$this->response
+```
+
+Более подробное описание методов данного класса смотрите в официальной документации [Swolle](https://openswoole.com/docs/4.x/modules/swoole-http-response)
+
+Пример использования:
+```php
+$this->response->setHeader('Content-Type', 'application/json');
+$this->response->end(
+                json_encode(
+                 [
+                     'status' => 'error',
+                     'message' => 'collection '.$this->uri_params['collection_name'] . 'not found in collectionList',
+                 ]
+                )
+            );
+```
+#### Запрос Request
+
+В контроллере:
+```php
+$this->request;
+```
+Более подробное описание методов данного класса смотрите в официальной документации [Swolle](https://openswoole.com/docs/4.x/modules/swoole-http-request)
+
+Пример использования:
+```php
+ $obj = json_decode($this->request->getContent());
+```
 
 ## notFoundController
 
