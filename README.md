@@ -9,7 +9,7 @@
 1. [Config](#config)
 1. [List of config parameters](#list-of-config-parameters)
 1. [Task](#task)
-   1. [Methods:](#methods:)
+   1. [Methods:](#methods-)
 1. [BasicTaskData](#basictaskdata)
    1. [Parameters](#parameters)
 1. [TaskResulted](#taskresulted)
