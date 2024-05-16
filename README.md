@@ -203,7 +203,131 @@ $taskResult =  $this->server->taskwait($taskData);
 var_export($taskResult->getResult());
 ```
 
+## Cyclic Job
+This is the code that requires periodic execution. This mechanism allows you to run scripts at regular intervals. It replaces cron.
 
+To initialize Cyclic Job, you need to declare the CyclicJobs parameter in the configuration file.
+
+Example initialization of config using stdClass:
+```php
+$config = new stdClass();
+$config->CyclicJobs =[
+"Sidalex\TestSwoole\CyclicJobs\TestCyclicJobs",
+];
+```
+Example initialization of config using a json file:
+```php
+{
+"CyclicJobs": [
+"Sidalex\\TestSwoole\\CyclicJobs\\TestCyclicJobs"
+]
+}
+```
+
+Example class for Cyclic Job:
+```php
+class MyCyclicJob implements CyclicJobsInterface
+{
+private $application;
+private $server;
+
+    public function __construct(Application $application, Server $server)
+    {
+        $this->application = $application;
+        $this->server = $server;
+    }
+
+    public function getTimeSleepSecond(): float
+    {
+        // Returns the sleep time in seconds
+        return 5.0;
+    }
+
+    public function runJob(): void
+    {
+        $arr = [1,2,3,4,5,6,7,8,9];
+        foreach ($arr as $value){
+            if($value % 3 == 0)
+            {
+                echo "example";
+            }
+        }
+    }
+}
+```
+Any class specified in the config must implement the CyclicJobsInterface interface.
+
+getTimeSleepSecond - returns the time in seconds at which the runJob method will be executed periodically.
+
+runJob - a method that contains the useful payload in terms of business logic. This is the code that contains the main business logic that should be executed cyclically.
+
+## Controller
+To create new routes, the Controller class is used. To add a new route, you need to create a class that implements the ControllerInterface interface and add the namespace in which this class is contained to the configuration file with the key "controllers". More details here
+
+Also, the framework has a special abstract class AbstractController that can simplify the creation of a Controller class.
+
+To create a Route for the Controller class, you need to specify an attribute of the following form:
+```php
+#[\Sidalex\SwooleApp\Classes\Controllers\Route(uri: '/api/{v1}/get_resume',method:"POST")]
+class TestController extends AbstractController
+{
+```
+or
+```php
+use Sidalex\SwooleApp\Classes\Controllers\Route;
+
+#[Route(uri: '/api/{v1}/get_resume',method:"POST")]
+class TestController extends AbstractController
+{
+```
+It is critically important that the attribute be specified first for this class.
+
+If no suitable controller is found, the NotFoundController will be called.
+
+### uri attribute parameter
+uri - this parameter determines for which route this controller will be used.
+
+If you specify a * in the route, for example, /test/version/*/items, then this controller will work for uris corresponding to /test/version/(any string)/items.
+
+If you specify /test/version/{version_number}/items in the route, the behavior will be similar to the behavior with *, but $uri_params['version_number'] will be added to the controller constructor.
+
+### method attribute parameter
+method - shows which method will be relevant for calling this controller.
+
+### Request processing
+The Controller class execute method contains the main business logic that the application should perform for this request. This method must return a response (\Swoole\Http\Response), which is contained in
+
+$this->response
+
+### Response
+In the Controller class:
+
+$this->response
+
+For a more detailed description of the methods of this class, see the official documentation Swoole
+
+Example of use:
+```php
+$this->response->setHeader('Content-Type', 'application/json');
+$this->response->end(
+                json_encode(
+                 [
+                     'status' => 'error',
+                     'message' => 'collection '.$this->uri_params['collection_name'] . 'not found in collectionList',
+                 ]
+                )
+            );
+```
+### Request
+In the Controller class:
+
+$this->request;
+
+For a more detailed description of the methods of this class, see the official documentation Swoole
+
+Example of use:
+
+$obj = json_decode($this->request->getContent());
 
 
 
@@ -398,8 +522,131 @@ $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['tes
 $taskResult =  $this->server->taskwait($taskData);
 var_export($taskResult->getResult());
 ```
+## Cyclic Job
+Этот код требует периодического выполнения. Этот механизм позволяет запускать скрипты с регулярными интервалами. Он заменяет cron.
 
+Для инициализации Cyclic Job необходимо объявить параметр CyclicJobs в файле конфигурации.
 
+Пример инициализации конфига с использованием stdClass:
+```php
+$config = new stdClass();
+$config->CyclicJobs = [
+    "Sidalex\TestSwoole\CyclicJobs\TestCyclicJobs",
+];
+```
+Пример инициализации конфига с использованием файла json:
+```php
+{
+  "CyclicJobs": [
+    "Sidalex\\TestSwoole\\CyclicJobs\\TestCyclicJobs"
+  ]
+}
+```
+Пример класса для Cyclic Job:
+```php
+class MyCyclicJob implements CyclicJobsInterface
+{
+    private $application;
+    private $server;
+
+    public function __construct(Application $application, Server $server)
+    {
+        $this->application = $application;
+        $this->server = $server;
+    }
+
+    public function getTimeSleepSecond(): float
+    {
+        // Возвращает время задержки в секундах
+        return 5.0;
+    }
+
+    public function runJob(): void
+    {
+        $arr = [1,2,3,4,5,6,7,8,9];
+        foreach ($arr as $value){
+            if($value % 3 == 0)
+            {
+                echo "example";
+            }
+        }
+    }
+}
+```
+Любой класс, указанный в конфиге, должен реализовывать интерфейс CyclicJobsInterface.
+
+Метод getTimeSleepSecond возвращает время в секундах, через которое будет выполняться метод runJob периодически.
+
+Метод runJob содержит полезную нагрузку в плане бизнес-логики. Это метод содержит бизнес-логику, которая должна выполняться циклически.
+
+## Controller
+Для создания новых маршрутов используется класс Controller. Чтобы добавить новый маршрут, вам необходимо создать класс, реализующий интерфейс ControllerInterface, и добавить пространство имен, в котором содержится этот класс, в файл конфигурации с ключом "controllers". Подробнее здесь
+
+Также в фреймворке есть специальный абстрактный класс AbstractController, который может упростить создание класса Controller.
+
+Чтобы создать маршрут для класса Controller, вам необходимо указать атрибут следующего вида:
+```php
+#[\Sidalex\SwooleApp\Classes\Controllers\Route(uri: '/api/{v1}/get_resume',method:"POST")]
+class TestController extends AbstractController
+{
+```
+или
+```php
+use Sidalex\SwooleApp\Classes\Controllers\Route;
+
+#[Route(uri: '/api/{v1}/get_resume',method:"POST")]
+class TestController extends AbstractController
+{
+```
+Крайне важно, чтобы сначала был указан атрибут для этого класса.
+
+Если подходящий контроллер не найден, будет вызван NotFoundController.
+
+### uri атрибутивный параметр
+uri - этот параметр определяет, для какого маршрута будет использоваться данный контроллер.
+
+Если вы укажете * в маршруте, например, /test/version/*/items, то этот контроллер будет работать для uri, соответствующих /test/version/(любая строка)/items.
+
+Если вы укажете /test/version/{version_number}/элементы в маршруте, поведение будет аналогично поведению с *, но $uri_params['version_number'] будет добавлен в конструктор контроллера.
+
+### параметр атрибута
+method - показывает, какой метод будет уместен для вызова данного контроллера.
+
+### Обработка запроса
+Метод execute класса Controller содержит основную бизнес-логику, которую приложение должно выполнить для этого запроса. Этот метод должен возвращать ответ (\Swoole\Http\Response), который содержится в
+
+$this->response
+
+### Response
+В классе Controller:
+
+$this->response
+
+Более подробное описание методов этого класса смотрите в официальной документации Swoole
+
+Пример использования:
+```php
+$this->response->setHeader('Content-Type', 'application/json');
+$this->response->end(
+                json_encode(
+                 [
+                     'status' => 'error',
+                     'message' => 'collection '.$this->uri_params['collection_name'] . 'not found in collectionList',
+                 ]
+                )
+            );
+```
+### Запрос
+В классе контроллера:
+
+$this->request;
+
+Более подробное описание методов этого класса смотрите в официальной документации Swoole
+
+Пример использования:
+```php
+$obj = json_decode($this->request->getContent());
+```
 
 
 
@@ -509,7 +756,7 @@ $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutor', ['tes
         $taskResult =  $this->server->taskwait($taskData);
         var_export($taskResult->getResult());
 ```
-
+тут
 ## Cyclic Job
 
 Это код, который требует периодического исполнения. С помощью этого механизма можно с определенной периодичностью запускать скрипты. Замена cron.
