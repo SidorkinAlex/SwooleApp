@@ -74,8 +74,9 @@ class Application
         }
         $TaskExecutorClassName = $data->getTaskClassName();
         if (Utilities::classImplementInterface($TaskExecutorClassName, 'Sidalex\SwooleApp\Classes\Tasks\Executors\TaskExecutorInterface')) {
-            $TaskExecutorClass = new $TaskExecutorClassName($server, $taskId, $reactorId, $data);
+            $TaskExecutorClass = new $TaskExecutorClassName($server, $taskId, $reactorId, $data, $this);
             $result = $TaskExecutorClass->execute();
+            unset($TaskExecutorClass);
         } else {
             return new TaskResulted('error task Executor not implemented TaskExecutorInterface', false);
         }
