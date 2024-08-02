@@ -2,7 +2,7 @@
 
 namespace Sidalex\SwooleApp;
 
-use Sidalex\CandidateVacancyEstimationGpt\Classes\Validators\ConfigValidatorInterface;
+use Sidalex\SwooleApp\Classes\Validators\ConfigValidatorInterface;
 
 use Sidalex\SwooleApp\Classes\Builder\NotFoundControllerBuilder;
 use Sidalex\SwooleApp\Classes\Builder\RoutesCollectionBuilder;
@@ -20,10 +20,17 @@ use Swoole\Http\Server;
 class Application
 {
     protected ConfigWrapper $config;
+    /**
+     * @var array<mixed>
+     */
     protected array $routesCollection;
 
     protected StateContainerWrapper $stateContainer;
 
+    /**
+     * @param \stdClass $configPath
+     * @param string[] $ConfigValidationList
+     */
     public function __construct(\stdClass $configPath, array $ConfigValidationList = [])
     {
         try {
