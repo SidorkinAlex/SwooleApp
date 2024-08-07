@@ -5,7 +5,6 @@ namespace Sidalex\SwooleApp\Classes\Builder;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Sidalex\SwooleApp\Classes\Controllers\ControllerInterface;
 use Sidalex\SwooleApp\Classes\Controllers\ErrorController;
-use Sidalex\SwooleApp\Classes\Controllers\Route;
 use Sidalex\SwooleApp\Classes\Utils\Utilities;
 use Sidalex\SwooleApp\Classes\Validators\ValidatorUriArr;
 use Sidalex\SwooleApp\Classes\Wrapper\ConfigWrapper;
