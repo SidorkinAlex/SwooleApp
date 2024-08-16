@@ -10,11 +10,11 @@ interface TaskExecutorInterface
 {
     /**
      * @param \Swoole\Http\Server $server
-     * @param $taskId
-     * @param $reactorId
+     * @param int $taskId
+     * @param int $reactorId
      * @param TaskDataInterface $data
      */
-    public function __construct(\Swoole\Http\Server $server, $taskId, $reactorId, TaskDataInterface $data, Application $app);
+    public function __construct(\Swoole\Http\Server $server, int $taskId, int $reactorId, TaskDataInterface $data, Application $app);
 
     /**
      * @return TaskResulted
